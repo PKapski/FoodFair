@@ -1,0 +1,11 @@
+﻿# Default ignored files
+/shelf/
+/workspace.xml
+# Rider ignored files
+/modules.xml
+/.idea.FoodFair.iml
+/contentModel.xml
+/projectSettingsUpdater.xml
+# Datasource local storage ignored files
+/../../../../../../../../../:\Programowanie\Uczelnia - magister\Sem 2\dotNet\FoodFair\.idea\.idea.FoodFair\.idea/dataSources/
+/dataSources.local.xml
