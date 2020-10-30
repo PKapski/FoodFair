@@ -3,10 +3,6 @@ using IdentityServer4.EntityFramework.Options;
 using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace FoodFair.Contexts
 {
@@ -19,5 +15,14 @@ namespace FoodFair.Contexts
         }
         
         public DbSet<Supplier> Suppliers { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Image> Images { get; set; }
+
+        // protected override void OnModelCreating(ModelBuilder builder)
+        // {
+        //     // builder.Entity<Product>()
+        //     //     .HasOne(p => p.Supplier)
+        //     //     .WithMany(s => s.Products);
+        // }
     }
 }

@@ -1,6 +1,5 @@
-﻿﻿using System;
- using System.Collections;
- using System.Collections.Generic;
+﻿﻿using System.Collections.Generic;
+ using System.Linq;
  using FoodFair.Contexts;
  using FoodFair.Models;
  using Microsoft.AspNetCore.Mvc;
@@ -22,13 +21,13 @@
         [HttpGet]
         public ActionResult<IEnumerable<Supplier>> GetSuppliers()
         {
-            return _context.Suppliers;
+            return Ok(_context.Suppliers.Include(x=>x.Products));
         }
 
         [HttpGet("{id}")]
         public ActionResult<Supplier> GetSupplierDetails(int id)
         {
-            var supplier = _context.Suppliers.Find(id);
+            var supplier = _context.Suppliers.Include(s=>s.Products).FirstOrDefault(x => x.Id == id);
 
             if (supplier == null)
             {
