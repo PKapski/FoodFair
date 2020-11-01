@@ -1,9 +1,10 @@
 ﻿﻿using System.Collections.Generic;
- using System.Linq;
- using FoodFair.Contexts;
- using FoodFair.Models;
+ using System.Threading.Tasks;
+ using AutoMapper;
+ using FoodFair.Models.DTO.Suppliers;
+ using FoodFair.Models.Entities;
+ using FoodFair.Services.Interfaces;
  using Microsoft.AspNetCore.Mvc;
- using Microsoft.EntityFrameworkCore;
 
  namespace FoodFair.Controllers
 {
@@ -11,66 +12,72 @@
     [ApiController]
     public class SupplierController : ControllerBase
     {
-        private readonly FairDbContext _context;
+        private readonly ISupplierService _service;
+        private readonly IMapper _mapper;
 
-        public SupplierController(FairDbContext context)
+        public SupplierController(ISupplierService service, IMapper mapper)
         {
-            _context = context;
+            _service = service;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Supplier>> GetSuppliers()
+        public async Task<ActionResult<IEnumerable<SupplierDetailsDTO>>> GetSuppliers()
         {
-            return Ok(_context.Suppliers.Include(x=>x.Products));
+            var suppliers = await _service.GetAllSuppliersAsync();
+            return Ok(_mapper.Map<IEnumerable<Supplier>, IEnumerable<SupplierDetailsDTO>>(suppliers));
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Supplier> GetSupplierDetails(int id)
+        public async Task<ActionResult<SupplierDetailsDTO>> GetSupplierDetails(int id)
         {
-            var supplier = _context.Suppliers.Include(s=>s.Products).FirstOrDefault(x => x.Id == id);
+            var supplier = await _service.GetSupplierAsync(id);
 
             if (supplier == null)
             {
                 return NotFound();
             }
 
-            return supplier;
+            return _mapper.Map<SupplierDetailsDTO>(supplier);
         }
         
         [HttpPost]
-        public ActionResult<Supplier> PostSupplier(Supplier supplier)
+        public async Task<ActionResult<SupplierDetailsDTO>> PostSupplier(SupplierPostDTO supplierDto)
         {
-            _context.Suppliers.Add(supplier);
-            _context.SaveChanges();
-
-            return CreatedAtAction("GetSupplierDetails", new {id = supplier.Id}, supplier);
+            var supplier = _mapper.Map<Supplier>(supplierDto);
+            await _service.SaveSupplierAsync(supplier);
+            return CreatedAtAction("GetSupplierDetails", new {id = supplier.Id}, _mapper.Map<SupplierDetailsDTO>(supplier));
         }
 
         [HttpPut("{id}")]
-        public ActionResult PutSupplier(int id, Supplier supplier)
+        public async Task<IActionResult> PutSupplier(int id, SupplierDetailsDTO supplierDto)
         {
-            if (id != supplier.Id)
+            if (id != supplierDto.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(supplier).State = EntityState.Modified;
-            _context.SaveChanges();
+            if (!await _service.SupplierExistsAsync(id))
+            {
+                return NotFound();
+            }
+
+            var supplier = _mapper.Map<Supplier>(supplierDto);
+            await _service.PutSupplierAsync(id, supplier);
 
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteSupplier(int id)
+        public async Task<IActionResult> DeleteSupplier(int id)
         {
-            var supplier = _context.Suppliers.Find(id);
+            var supplier = await _service.GetSupplierAsync(id);
             if (supplier == null)
             {
                 return NotFound();
             }
 
-            _context.Suppliers.Remove(supplier);
-            _context.SaveChanges();
+            await _service.DeleteSupplierAsync(supplier);
 
             return NoContent();
         }

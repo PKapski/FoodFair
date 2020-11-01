@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace FoodFair.Migrations
 {
-    [DbContext(typeof(FairDbContext))]
+    [DbContext(typeof(FoodFairDbContext))]
     partial class FairDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
@@ -19,7 +19,7 @@ namespace FoodFair.Migrations
                 .HasAnnotation("ProductVersion", "3.1.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            modelBuilder.Entity("FoodFair.Models.ApplicationUser", b =>
+            modelBuilder.Entity("FoodFair.Models.Entities.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -83,27 +83,30 @@ namespace FoodFair.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("FoodFair.Models.Image", b =>
+            modelBuilder.Entity("FoodFair.Models.Entities.Image", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<byte[]>("Data")
-                        .HasColumnType("bytea");
 
                     b.HasKey("Id");
 
                     b.ToTable("Images");
                 });
 
-            modelBuilder.Entity("FoodFair.Models.Product", b =>
+            modelBuilder.Entity("FoodFair.Models.Entities.Product", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<int>("Category")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Currency")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
@@ -111,12 +114,23 @@ namespace FoodFair.Migrations
                     b.Property<int?>("ImageId")
                         .HasColumnType("integer");
 
+                    b.Property<double>("MinQuantity")
+                        .HasColumnType("double precision");
+
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("double precision");
+
+                    b.Property<int>("QuantityUnit")
+                        .HasColumnType("integer");
 
                     b.Property<int>("SupplierId")
                         .HasColumnType("integer");
+
+                    b.Property<double>("TotalQuantity")
+                        .HasColumnType("double precision");
 
                     b.HasKey("Id");
 
@@ -125,7 +139,7 @@ namespace FoodFair.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("FoodFair.Models.Supplier", b =>
+            modelBuilder.Entity("FoodFair.Models.Entities.Supplier", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -133,22 +147,18 @@ namespace FoodFair.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int?>("ImageId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("PhoneNumber")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -372,9 +382,9 @@ namespace FoodFair.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("FoodFair.Models.Product", b =>
+            modelBuilder.Entity("FoodFair.Models.Entities.Product", b =>
                 {
-                    b.HasOne("FoodFair.Models.Supplier", "Supplier")
+                    b.HasOne("FoodFair.Models.Entities.Supplier", "Supplier")
                         .WithMany("Products")
                         .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -392,7 +402,7 @@ namespace FoodFair.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("FoodFair.Models.ApplicationUser", null)
+                    b.HasOne("FoodFair.Models.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -401,7 +411,7 @@ namespace FoodFair.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("FoodFair.Models.ApplicationUser", null)
+                    b.HasOne("FoodFair.Models.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -416,7 +426,7 @@ namespace FoodFair.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FoodFair.Models.ApplicationUser", null)
+                    b.HasOne("FoodFair.Models.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -425,7 +435,7 @@ namespace FoodFair.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("FoodFair.Models.ApplicationUser", null)
+                    b.HasOne("FoodFair.Models.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

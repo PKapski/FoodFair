@@ -1,5 +1,9 @@
+using AutoMapper;
 using FoodFair.Contexts;
-using FoodFair.Models;
+using FoodFair.Mappings;
+using FoodFair.Models.Entities;
+using FoodFair.Services;
+using FoodFair.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -8,6 +12,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace FoodFair
 {
@@ -23,15 +29,15 @@ namespace FoodFair
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<FairDbContext>(options =>
+            services.AddDbContext<FoodFairDbContext>(options =>
                 options.UseNpgsql(
                     Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<FairDbContext>();
+                .AddEntityFrameworkStores<FoodFairDbContext>();
 
             services.AddIdentityServer()
-                .AddApiAuthorization<ApplicationUser, FairDbContext>();
+                .AddApiAuthorization<ApplicationUser, FoodFairDbContext>();
 
             services.AddAuthentication()
                 .AddIdentityServerJwt();
@@ -39,11 +45,25 @@ namespace FoodFair
             services.AddControllersWithViews();
             services.AddRazorPages();
 
+            var mapperConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new MappingProfile());
+            });
+            IMapper mapper = mapperConfig.CreateMapper();
+            services.AddSingleton(mapper);
+            services.AddTransient<ISupplierService, SupplierService>();
+            services.AddTransient<IProductService, ProductService>();
+
             services.AddMvc().AddNewtonsoftJson();
-            services.AddControllers().AddNewtonsoftJson(x =>
-                x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            services.AddControllers().AddNewtonsoftJson(opts =>
+            {
+                opts.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                opts.SerializerSettings.Converters.Add(new StringEnumConverter());
+            });
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/build"; });
+            
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

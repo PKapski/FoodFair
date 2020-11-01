@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using FoodFair.Contexts;
-using FoodFair.Models;
+using FoodFair.Models.Entities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,24 +12,24 @@ namespace FoodFair.Controllers
     [ApiController]
     public class ImageController: ControllerBase
     {
-        private readonly FairDbContext _context;
+        private readonly FoodFairDbContext _context;
 
-        public ImageController(FairDbContext context)
+        public ImageController(FoodFairDbContext context)
         {
             _context = context;
         }
         
         
         [HttpGet]
-        public ActionResult<IEnumerable<Image>> GetImages()
+        public async Task<ActionResult<IEnumerable<Image>>> GetImages()
         {
-            return _context.Images;
+            return await _context.Images.ToListAsync();
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Image> GetImageDetails(int id)
+        public async Task<ActionResult<Image>> GetImageDetails(int id)
         {
-            var image = _context.Images.Find(id);
+            var image = await _context.Images.FindAsync(id);
 
             if (image == null)
             {
@@ -38,16 +40,17 @@ namespace FoodFair.Controllers
         }
         
         [HttpPost]
-        public ActionResult<Image> PostImage(Image image)
+        public async Task<ActionResult<Image>> PostImage(IFormFile formFile)
         {
+            Image image = new Image(formFile);
             _context.Images.Add(image);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetImageDetails", new {id = image.Id}, image);
         }
 
         [HttpPut("{id}")]
-        public ActionResult PutImage(int id, Image image)
+        public async Task<IActionResult>  PutImage(int id, Image image)
         {
             if (id != image.Id)
             {
@@ -55,22 +58,22 @@ namespace FoodFair.Controllers
             }
 
             _context.Entry(image).State = EntityState.Modified;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteImage(int id)
+        public async Task<IActionResult> DeleteImage(int id)
         {
-            var image = _context.Images.Find(id);
+            var image = await _context.Images.FindAsync(id);
             if (image == null)
             {
                 return NotFound();
             }
 
             _context.Images.Remove(image);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }

@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using FoodFair.Contexts;
-using FoodFair.Models;
+using System.Threading.Tasks;
+using AutoMapper;
+using FoodFair.Models.DTO.Products;
+using FoodFair.Models.Entities;
+using FoodFair.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace FoodFair.Controllers
 {
@@ -11,72 +12,72 @@ namespace FoodFair.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly FairDbContext _context;
+        private readonly IProductService _service;
+        private readonly IMapper _mapper;
 
-        public ProductController(FairDbContext context)
+        public ProductController(IProductService service, IMapper mapper)
         {
-            _context = context;
+            _service = service;
+            _mapper = mapper;
         }
-        
-        
+
         [HttpGet]
-        public ActionResult<IEnumerable<Product>> GetProducts()
+        public async Task<ActionResult<IEnumerable<ProductDetailsDTO>>> GetProducts()
         {
-            return Ok(_context.Products.Include(p => p.Supplier));
+            var products = await _service.GetAllProductsAsync();
+            return Ok(products);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Product> GetProductDetails(int id)
+        public async Task<ActionResult<ProductDetailsDTO>> GetProductDetails(int id)
         {
-            var product = _context.Products.Include(p=>p.Supplier).FirstOrDefault(x => x.Id == id);
+            var product = await _service.GetProductAsync(id);
 
             if (product == null)
             {
                 return NotFound();
             }
 
-            return product;
+            return _mapper.Map<ProductDetailsDTO>(product);
         }
         
         [HttpPost]
-        public ActionResult<Product> PostProduct(Product product)
+        public async Task<ActionResult<ProductDetailsDTO>> PostProduct(ProductPostDTO productDto)
         {
-            product.Supplier = null;
-            if (!_context.Suppliers.Any(s => s.Id == product.SupplierId))
-            {
-                return BadRequest("Supplier with given Id doesn't exist");
-            }
-            _context.Products.Add(product);
-            _context.SaveChanges();
-
-            return CreatedAtAction("GetProductDetails", new {id = product.Id}, product);
+            var product = _mapper.Map<Product>(productDto);
+            await _service.SaveProductAsync(product);
+            return CreatedAtAction("GetProductDetails", new {id = product.Id}, _mapper.Map<ProductDetailsDTO>(product));
         }
 
         [HttpPut("{id}")]
-        public ActionResult PutProduct(int id, Product product)
+        public async Task<IActionResult> PutProduct(int id, ProductDetailsDTO productDto)
         {
-            if (id != product.Id)
+            if (id != productDto.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(product).State = EntityState.Modified;
-            _context.SaveChanges();
+            if (!await _service.ProductExistsAsync(id))
+            {
+                return NotFound();
+            }
+
+            var product = _mapper.Map<Product>(productDto);
+            await _service.PutProductAsync(id, product);
 
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteProduct(int id)
+        public async Task<IActionResult> DeleteProduct(int id)
         {
-            var product = _context.Products.Find(id);
+            var product = await _service.GetProductAsync(id);
             if (product == null)
             {
                 return NotFound();
             }
 
-            _context.Products.Remove(product);
-            _context.SaveChanges();
+            await _service.DeleteProductAsync(product);
 
             return NoContent();
         }
