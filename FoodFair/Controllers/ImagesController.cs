@@ -19,7 +19,6 @@ namespace FoodFair.Controllers
             _context = context;
         }
         
-        
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Image>>> GetImages()
         {
@@ -40,13 +39,13 @@ namespace FoodFair.Controllers
         }
         
         [HttpPost]
-        public async Task<ActionResult<Image>> PostImage(IFormFile formFile)
+        public async Task<ActionResult<int>> PostImage([FromForm] IFormFile formFile)
         {
             Image image = new Image(formFile);
             _context.Images.Add(image);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetImageDetails", new {id = image.Id}, image);
+            return Ok(image.Id);
         }
 
         [HttpPut("{id}")]

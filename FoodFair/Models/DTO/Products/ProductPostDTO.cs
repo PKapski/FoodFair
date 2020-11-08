@@ -13,7 +13,7 @@ namespace FoodFair.Models.DTO.Products
         public string Description { get; set; }
         public int? ImageId { get; set; }
         public double TotalQuantity  { get; set; }
-        public double MinQuantity  { get; set; }
+        public double SingleStockQuantity { get; set; }
         
         [Required]
         public QuantityUnit? QuantityUnit { get; set; }

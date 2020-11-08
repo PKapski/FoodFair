@@ -14,9 +14,11 @@ namespace FoodFair.Models.Entities
             using var memoryStream = new MemoryStream();
             formFile.CopyTo(memoryStream);
             Data = memoryStream.ToArray();
+            FileName = formFile.FileName;
         }
 
         public int Id { get; set; }
-        public byte[] Data { get; }
+        public byte[] Data { get; set; }
+        public string FileName { get; set; }
     }
 }

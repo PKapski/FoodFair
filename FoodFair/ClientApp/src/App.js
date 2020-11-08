@@ -9,6 +9,7 @@ import {ApplicationPaths} from './components/api-authorization/ApiAuthorizationC
 
 import './custom.css'
 import Products from "./components/Products";
+import AddProduct from "./components/AddProduct";
 
 export default class App extends Component {
     static displayName = App.name;
@@ -20,6 +21,7 @@ export default class App extends Component {
                 <Route path='/products' component={Products}/>
                 <AuthorizeRoute path='/fetch-data' component={FetchData}/>
                 <Route path={ApplicationPaths.ApiAuthorizationPrefix} component={ApiAuthorizationRoutes}/>
+                <Route path='/me/products/add' component={AddProduct}/>
             </Layout>
         );
     }

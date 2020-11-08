@@ -8,7 +8,7 @@ class Products extends Component {
     
     render() {
         return (
-            <div class="container">
+            <div className="container">
                 <ProductsHeader/>
                 <ProductsList/>
             </div>

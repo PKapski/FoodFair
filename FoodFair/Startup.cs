@@ -19,6 +19,8 @@ namespace FoodFair
 {
     public class Startup
     {
+        // private readonly string CorsOrigin = "AllowOrigin";
+        
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -41,14 +43,26 @@ namespace FoodFair
 
             services.AddAuthentication()
                 .AddIdentityServerJwt();
+            //
+            // services.AddCors(options =>
+            // {
+            //     options.AddPolicy(
+            //         CorsOrigin,
+            //         builder =>
+            //         {
+            //             builder
+            //                 .AllowAnyOrigin()
+            //                 .AllowAnyMethod()
+            //                 .AllowAnyHeader();
+            //         }
+            //     );
+            // });
 
+            services.AddMvc();
             services.AddControllersWithViews();
             services.AddRazorPages();
 
-            var mapperConfig = new MapperConfiguration(mc =>
-            {
-                mc.AddProfile(new MappingProfile());
-            });
+            var mapperConfig = new MapperConfiguration(mc => { mc.AddProfile(new MappingProfile()); });
             IMapper mapper = mapperConfig.CreateMapper();
             services.AddSingleton(mapper);
             services.AddTransient<ISupplierService, SupplierService>();
@@ -62,8 +76,6 @@ namespace FoodFair
             });
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/build"; });
-            
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -86,16 +98,17 @@ namespace FoodFair
             app.UseSpaStaticFiles();
 
             app.UseRouting();
+            
+            // app.UseCors();
 
             app.UseAuthentication();
             app.UseIdentityServer();
             app.UseAuthorization();
+            
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller}/{action=Index}/{id?}");
-                endpoints.MapRazorPages();
+                endpoints.MapControllers();
+                // endpoints.MapControllers().RequireCors(CorsOrigin);
             });
 
             app.UseSpa(spa =>

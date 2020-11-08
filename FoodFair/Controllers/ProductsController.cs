@@ -46,7 +46,7 @@ namespace FoodFair.Controllers
         {
             var product = _mapper.Map<Product>(productDto);
             await _service.SaveProductAsync(product);
-            return CreatedAtAction("GetProductDetails", new {id = product.Id}, _mapper.Map<ProductDetailsDTO>(product));
+            return CreatedAtAction(nameof(GetProductDetails), new {id = product.Id}, _mapper.Map<ProductDetailsDTO>(product));
         }
 
         [HttpPut("{id}")]

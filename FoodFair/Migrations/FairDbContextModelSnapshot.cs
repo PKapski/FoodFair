@@ -90,6 +90,12 @@ namespace FoodFair.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
+                    b.Property<byte[]>("Data")
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("FileName")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.ToTable("Images");
@@ -114,9 +120,6 @@ namespace FoodFair.Migrations
                     b.Property<int?>("ImageId")
                         .HasColumnType("integer");
 
-                    b.Property<double>("MinQuantity")
-                        .HasColumnType("double precision");
-
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
@@ -125,6 +128,9 @@ namespace FoodFair.Migrations
 
                     b.Property<int>("QuantityUnit")
                         .HasColumnType("integer");
+
+                    b.Property<double>("SingleStockQuantity")
+                        .HasColumnType("double precision");
 
                     b.Property<int>("SupplierId")
                         .HasColumnType("integer");
