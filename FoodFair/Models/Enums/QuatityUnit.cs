@@ -2,7 +2,7 @@
 {
     public enum QuantityUnit
     {
-        None,
+        Piece,
         G,
         Dag,
         Kg,

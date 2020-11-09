@@ -49,11 +49,6 @@
     border-color: green;
 }
 
-.addContainer {
-    max-width: 400px;
-    margin: auto;
-}
-
 .addContainer h1 {
     text-align: center;
     margin-bottom: 2rem;
@@ -64,3 +59,20 @@
     display: block;
 }
 
+.imageColumn {
+    display: flex;
+    align-items: center;
+    max-width: 400px;
+}
+
+.card-img-top {
+    height: 250px;
+}
+
+.card {
+    width: 300px;
+}
+
+.quantityText {
+    font-size: 12px;
+}

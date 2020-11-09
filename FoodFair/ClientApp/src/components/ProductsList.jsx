@@ -1,6 +1,7 @@
 ﻿import React, {Component} from 'react';
 import Product from "./Product";
 import {Container, Col, Spinner, Row} from "react-bootstrap";
+import {ApiPaths} from "./ProjectProperties";
 
 class ProductsList extends Component {
     state = {
@@ -9,8 +10,7 @@ class ProductsList extends Component {
     }
     
     async componentDidMount() {
-        const url = "/product"
-        const response = await fetch(url);
+        const response = await fetch(ApiPaths.Products);
         const data = await response.json();
         console.log(data);
         this.setState({products: data, loading: false});
@@ -33,7 +33,7 @@ class ProductsList extends Component {
             <Container>
                 <Row>
                     {this.state.products.map(product => (
-                        <Col className="col-md-4">
+                        <Col className="col-md-4" key={product.id}>
                             <Product product={product} key={product.id}/>
                         </Col>
                     ))}

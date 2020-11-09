@@ -8,24 +8,24 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FoodFair.Controllers
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
-    public class ProductController : ControllerBase
+    public class ProductsController : ControllerBase
     {
         private readonly IProductService _service;
         private readonly IMapper _mapper;
 
-        public ProductController(IProductService service, IMapper mapper)
+        public ProductsController(IProductService service, IMapper mapper)
         {
             _service = service;
             _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductDetailsDTO>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<ProductListDTO>>> GetProducts()
         {
             var products = await _service.GetAllProductsAsync();
-            return Ok(products);
+            return Ok(_mapper.Map<IEnumerable<Product>, IEnumerable<ProductListDTO>>(products));
         }
 
         [HttpGet("{id}")]

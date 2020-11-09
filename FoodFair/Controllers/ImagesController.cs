@@ -8,13 +8,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FoodFair.Controllers
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
-    public class ImageController: ControllerBase
+    public class ImagesController: ControllerBase
     {
         private readonly FoodFairDbContext _context;
 
-        public ImageController(FoodFairDbContext context)
+        public ImagesController(FoodFairDbContext context)
         {
             _context = context;
         }
@@ -26,7 +26,7 @@ namespace FoodFair.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Image>> GetImageDetails(int id)
+        public async Task<ActionResult<byte[]>> GetImageDetails(int id)
         {
             var image = await _context.Images.FindAsync(id);
 
@@ -35,7 +35,7 @@ namespace FoodFair.Controllers
                 return NotFound();
             }
 
-            return image;
+            return image.Data;
         }
         
         [HttpPost]

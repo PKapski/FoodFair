@@ -8,14 +8,14 @@
 
  namespace FoodFair.Controllers
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
-    public class SupplierController : ControllerBase
+    public class SuppliersController : ControllerBase
     {
         private readonly ISupplierService _service;
         private readonly IMapper _mapper;
 
-        public SupplierController(ISupplierService service, IMapper mapper)
+        public SuppliersController(ISupplierService service, IMapper mapper)
         {
             _service = service;
             _mapper = mapper;
