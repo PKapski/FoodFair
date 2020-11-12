@@ -6,10 +6,10 @@ namespace FoodFair.Services.Interfaces
 {
     public interface IProductService
     {
-        Task<IEnumerable<Product>> GetAllProductsAsync();
+        Task<IEnumerable<Product>> GetAllProductsAsync(int? supplierId, bool showOnlyAvailable);
         Task<Product> GetProductAsync(int id);
         Task SaveProductAsync(Product product);
-        Task PutProductAsync(int id, Product product);
+        Task PutProductAsync(Product product);
         Task DeleteProductAsync(Product product);
         Task<bool> ProductExistsAsync(int id);
     }

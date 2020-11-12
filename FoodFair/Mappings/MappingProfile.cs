@@ -15,6 +15,11 @@ namespace FoodFair.Mappings
             CreateMap<Supplier, SupplierDetailsDTO>();
             CreateMap<Product, ProductDetailsDTO>();
 
+            CreateMap<ProductDetailsDTO, Product>();
+            CreateMap<SupplierDetailsDTO, Supplier>();
+
+            CreateMap<SupplierPutDTO, Supplier>();
+
             CreateMap<Product, ProductListDTO>();
         }
     }

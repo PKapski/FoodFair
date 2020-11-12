@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import authService from './api-authorization/AuthorizeService'
 
 export class FetchData extends Component {
   static displayName = FetchData.name;
@@ -53,11 +52,11 @@ export class FetchData extends Component {
   }
 
   async populateWeatherData() {
-    const token = await authService.getAccessToken();
-    const response = await fetch('weatherforecast', {
-      headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
-    });
-    const data = await response.json();
-    this.setState({ forecasts: data, loading: false });
+    // const token = await authService.getAccessToken();
+    // const response = await fetch('weatherforecast', {
+    //   headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+    // });
+    // const data = await response.json();
+    // this.setState({ forecasts: data, loading: false });
   }
 }

@@ -3,13 +3,14 @@ import {Container} from 'react-bootstrap';
 import {NavMenu} from './NavMenu';
 import Footer from "./Footer";
 
+
 export class Layout extends Component {
     static displayName = Layout.name;
 
     render() {
         return (
             <div className="d-flex flex-column min-vh-100">
-                <NavMenu/>
+                <NavMenu cartCount={this.props.cartCount} />
                 <main role="main" className="flex-shrink-0">
                     <Container>
                         {this.props.children}
@@ -19,4 +20,6 @@ export class Layout extends Component {
             </div>
         );
     }
+
+
 }

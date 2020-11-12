@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using FoodFair.Contexts;
 using FoodFair.Models.Entities;
+using FoodFair.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,28 +13,21 @@ namespace FoodFair.Controllers
     [ApiController]
     public class ImagesController: ControllerBase
     {
-        private readonly FoodFairDbContext _context;
+        private readonly IImageService _service;
 
-        public ImagesController(FoodFairDbContext context)
+        public ImagesController(IImageService service)
         {
-            _context = context;
+            _service = service;
         }
-        
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Image>>> GetImages()
-        {
-            return await _context.Images.ToListAsync();
-        }
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<byte[]>> GetImageDetails(int id)
         {
-            var image = await _context.Images.FindAsync(id);
+            var image = await _service.GetImageAsync(id);
 
             if (image == null)
-            {
                 return NotFound();
-            }
 
             return image.Data;
         }
@@ -41,40 +35,24 @@ namespace FoodFair.Controllers
         [HttpPost]
         public async Task<ActionResult<int>> PostImage([FromForm] IFormFile formFile)
         {
-            Image image = new Image(formFile);
-            _context.Images.Add(image);
-            await _context.SaveChangesAsync();
+            var image = new Image(formFile);
+            await _service.SaveImageAsync(image);
 
             return Ok(image.Id);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult>  PutImage(int id, Image image)
+        public async Task<IActionResult>  PutImage(int id, [FromForm] IFormFile formFile)
         {
-            if (id != image.Id)
+            var image = new Image(formFile);
+            if (await _service.ImageExistsAsync(id))
             {
-                return BadRequest();
+                image.Id = id;
+                await _service.PutImageAsync(image);
+                return NoContent();
             }
 
-            _context.Entry(image).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteImage(int id)
-        {
-            var image = await _context.Images.FindAsync(id);
-            if (image == null)
-            {
-                return NotFound();
-            }
-
-            _context.Images.Remove(image);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return NotFound();
         }
     }
 }

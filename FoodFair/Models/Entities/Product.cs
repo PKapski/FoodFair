@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using FoodFair.Models.Enums;
 
 namespace FoodFair.Models.Entities
@@ -13,7 +14,10 @@ namespace FoodFair.Models.Entities
         public string Name { get; set; }
         public string Description { get; set; }
         public int? ImageId { get; set; }
-        public DateTime CreationDate { get; }
+        
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public DateTime CreatedDate { get; set; }
+        
         public double TotalQuantity { get; set; }
         public double SingleStockQuantity { get; set; }
         public QuantityUnit QuantityUnit { get; set; }

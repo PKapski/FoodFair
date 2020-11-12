@@ -6,52 +6,107 @@ import Button from "react-bootstrap/Button";
 import Row from "react-bootstrap/Row";
 import Image from "react-bootstrap/Image";
 import defaultImage from "../images/default-image.png"
-import {ApiPaths} from "./ProjectProperties"
+import {ApiPaths, ImageSourcePrefix} from "./ProjectProperties"
+import {getSupplierId, getToken} from "./api-authorization/AuthProvider"
 
 class AddProduct extends Component {
 
     productCategories = ["Food", "Drink", "Other"];
     weightUnits = ["Piece", "G", "Dag", "Kg", "T"]
 
-    constructor(props, context) {
-        super(props, context);
+    constructor(props) {
+        super(props);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleFileUpdate = this.handleFileUpdate.bind(this);
+        this.getFormTitle = this.getFormTitle.bind(this);
+        
         this.state = {
-            Category: this.productCategories[0],
-            QuantityUnit: this.weightUnits[0],
-            ImageId: null,
-            SupplierId: 4, //TODO: change this to current supplier id
-            Currency: "USD", //TODO: change this to current user currency
-            FormFile: defaultImage
+            product: {
+                category: this.productCategories[0],
+                quantityUnit: this.weightUnits[0],
+                imageId: null,
+                supplierId: getSupplierId(), //TODO: change this to current supplier id
+                currency: "USD", //TODO: change this to current user currency
+            },
+            FormFile: defaultImage,
         }
     }
 
+
+    async componentDidMount() {
+        const {match: {params}} = this.props;
+        
+        if (params.id != null) {
+            const response = await fetch(ApiPaths.Products + "/" + params.id);
+            const data = await response.json();
+
+            this.setState({product: data});
+            await this.fetchAndSetProductImage(data.imageId);
+        }
+    }
+
+    async fetchAndSetProductImage(imageId) {
+        if (imageId === null) {
+            return;
+        }
+
+        let base64Image = await this.fetchBase64ImageData(imageId);
+        base64Image = ImageSourcePrefix + this.getResponseWithoutQuotes(base64Image);
+
+        this.setState({FormFile: base64Image});
+    }
+
+    async fetchBase64ImageData(imageId) {
+        const requestOptions = {
+            method: 'GET'
+        };
+        return await fetch(ApiPaths.Images + "/" + imageId, requestOptions)
+            .then(response => response.text());
+    }
+
+    getResponseWithoutQuotes(base64Image) {
+        return base64Image.replace(/['"]+/g, '');
+    }
+    
     changeHandler = (event) => {
         this.setState({
-            [event.target.name]: event.target.value
+            product: {
+                ...this.state.product,
+                [event.target.name]: event.target.value
+            }
         });
     }
 
     async handleSubmit(event) {
         event.preventDefault();
+        const {match: {params}} = this.props;
 
-        this.setState({
-            FormFile: undefined
-        });
-
+        if (params.id == null) {
+            await this.postProduct();
+        } else {
+            await this.putProduct();
+        }
+        this.props.history.push("/me/products");
+    }
+    
+    async postProduct() {
         const requestOptions = {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(this.state)
+            headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken()},
+            body: JSON.stringify(this.state.product),
         };
-        const data = await fetch(ApiPaths.Products, requestOptions);
-        let changeUrl = data.headers.get("Location");
-        const tokens = changeUrl.split('/').slice(3);
-        changeUrl = '/' + tokens.join('/');
-        this.props.history.push(changeUrl);
+        await fetch(ApiPaths.Products, requestOptions);
     }
-
+    
+    async putProduct() {
+        const requestOptions = {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken()},
+            body: JSON.stringify(this.state.product),
+        };
+        await fetch(`${ApiPaths.Products}/${this.state.product.id}`, requestOptions);
+    }
+    
     async postImageAndGetId(image) {
         const formData = new FormData();
         formData.append('formFile', image);
@@ -67,29 +122,41 @@ class AddProduct extends Component {
     async handleFileUpdate(event) {
         if (event.target.files && event.target.files[0]) {
             this.setState({
-                    FormFile: URL.createObjectURL(event.target.files[0])
-                });
-            
+                FormFile: URL.createObjectURL(event.target.files[0])
+            });
+
             const imageId = await this.postImageAndGetId(event.target.files[0]);
             this.setState({
-                ImageId: imageId,
+                product: {
+                    ...this.state.product,
+                    imageId: imageId,
+                }
             })
         }
     }
-
+    
+    getFormTitle() {
+        const {match: {params}} = this.props;
+        if (params.id == null) 
+            return "Add product!";
+        else 
+            return "Edit product!";
+    }
+    
     render() {
         return (
             <div className="addContainer">
                 <Row>
                     <Col/>
                     <Col>
-                        <h1>Add Product!</h1>
+                        <h1>{this.getFormTitle()}</h1>
                         <Form onSubmit={this.handleSubmit} onChange={this.changeHandler}>
                             <Form.Group>
                                 <Form.Label>Name *</Form.Label>
                                 <Form.Control
                                     required
-                                    name="Name"
+                                    value={this.state.product.name}
+                                    name="name"
                                     as="input"
                                     type="text"
                                 />
@@ -98,7 +165,8 @@ class AddProduct extends Component {
                                 <Form.Label>Description *</Form.Label>
                                 <Form.Control
                                     required
-                                    name="Description"
+                                    value={this.state.product.description}
+                                    name="description"
                                     type="text"
                                     as="textarea"
                                     rows={3}/>
@@ -107,7 +175,8 @@ class AddProduct extends Component {
                                 <Form.Label>Category *</Form.Label>
                                 <Form.Control
                                     as="select"
-                                    name="Category">
+                                    value={this.state.product.category}
+                                    name="category">
                                     {this.productCategories.map(prod => (
                                         <option value={prod}>{prod}</option>
                                     ))}
@@ -117,26 +186,29 @@ class AddProduct extends Component {
                                 <Form.Label>Price *</Form.Label>
                                 <Form.Control
                                     required
+                                    value={this.state.product.price}
                                     as="input"
                                     type="number"
-                                    name="Price"/>
+                                    name="price"/>
                             </Form.Group>
                             <Form.Group>
                                 <Form.Label>Total product quantity</Form.Label>
                                 <Form.Control
                                     required
+                                    value={this.state.product.totalQuantity}
                                     as="input"
                                     type="number"
-                                    name="TotalQuantity"/>
+                                    name="totalQuantity"/>
                             </Form.Group>
                             <Form.Row>
                                 <Form.Group as={Col}>
                                     <Form.Label>Single stock</Form.Label>
                                     <Form.Control
                                         required
+                                        value={this.state.product.singleStockQuantity}
                                         as="input"
                                         type="number"
-                                        name="SingleStockQuantity"/>
+                                        name="singleStockQuantity"/>
                                     <Form.Text muted>
                                         Single product quantity
                                     </Form.Text>
@@ -146,7 +218,8 @@ class AddProduct extends Component {
                                     <Form.Label>Unit</Form.Label>
                                     <Form.Control
                                         as="select"
-                                        name="QuantityUnit">
+                                        value={this.state.product.quantityUnit}
+                                        name="quantityUnit">
                                         {this.weightUnits.map(unit => (
                                             <option value={unit}>{unit}</option>
                                         ))}
@@ -154,7 +227,10 @@ class AddProduct extends Component {
                                 </Form.Group>
                             </Form.Row>
                             <Form.Group>
-                                <Form.File accept="image/*" name="image" onChange={this.handleFileUpdate}/>
+                                <Form.File 
+                                    accept="image/*" 
+                                    name="image" 
+                                    onChange={this.handleFileUpdate}/>
                                 <Form.Text muted>
                                     Product image
                                 </Form.Text>

@@ -1,7 +1,7 @@
-import React, { Component, Fragment } from 'react';
-import authService from './AuthorizeService';
-import { ApplicationPaths } from './ApiAuthorizationConstants';
+import React, {Component} from 'react';
 import Nav from "react-bootstrap/Nav";
+import {getSupplierName, isLoggedIn, logout} from './AuthProvider'
+import {NavDropdown} from "react-bootstrap";
 
 export class LoginMenu extends Component {
     constructor(props) {
@@ -12,53 +12,46 @@ export class LoginMenu extends Component {
             userName: null
         };
     }
-
+    
     componentDidMount() {
-        this._subscription = authService.subscribe(() => this.populateState());
         this.populateState();
     }
 
-    componentWillUnmount() {
-        authService.unsubscribe(this._subscription);
-    }
-
-    async populateState() {
-        const [isAuthenticated, user] = await Promise.all([authService.isAuthenticated(), authService.getUser()])
+    populateState() {
+        const [isAuthenticated, userName] = [isLoggedIn(), getSupplierName()];
         this.setState({
             isAuthenticated,
-            userName: user && user.name
+            userName
         });
     }
 
     render() {
-        const { isAuthenticated, userName } = this.state;
+        const {isAuthenticated, userName} = this.state;
         if (!isAuthenticated) {
-            const registerPath = `${ApplicationPaths.Register}`;
-            const loginPath = `${ApplicationPaths.Login}`;
-            return this.anonymousView(registerPath, loginPath);
+            return this.anonymousView("/register", "/login");
         } else {
-            const profilePath = `${ApplicationPaths.Profile}`;
-            const logoutPath = { pathname: `${ApplicationPaths.LogOut}`, state: { local: true } };
-            return this.authenticatedView(userName, profilePath, logoutPath);
+            return this.authenticatedView(userName, "/me/products", "/me/account/edit", "/");
         }
     }
 
-    authenticatedView(userName, profilePath, logoutPath) {
+    authenticatedView(userName, productsPath, profilePath, logoutPath) {
         return (
-            <Nav className="ml-auto" style={{marginLeft: "auto"}}>
-                <Nav.Link className="text-white" href={profilePath}>Hello {userName}</Nav.Link>
-                <Nav.Link className="text-white" href={logoutPath}>Logout</Nav.Link>
+            <Nav>
+                <NavDropdown title={`Hello ${userName}`} id="basic-nav-dropdown" className="text-white">
+                    <NavDropdown.Item href={productsPath}>My products</NavDropdown.Item>
+                    <NavDropdown.Item href={profilePath}>Account</NavDropdown.Item>
+                    <NavDropdown.Item href={logoutPath} onClick={logout}>Logout</NavDropdown.Item>
+                </NavDropdown>
             </Nav>
         );
-
     }
 
     anonymousView(registerPath, loginPath) {
-        return (<Fragment>
+        return (
             <Nav>
-                <Nav.Link className="text-white" href={registerPath}>Register</Nav.Link>
+                <Nav.Link className="text-white" href={registerPath}>Become a supplier!</Nav.Link>
                 <Nav.Link className="text-white" href={loginPath}>Login</Nav.Link>
             </Nav>
-        </Fragment>);
+        );
     }
 }

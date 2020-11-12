@@ -1,10 +1,12 @@
+using System;
+using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using FoodFair.Contexts;
 using FoodFair.Mappings;
-using FoodFair.Models.Entities;
 using FoodFair.Services;
 using FoodFair.Services.Interfaces;
-using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
@@ -12,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -33,30 +36,46 @@ namespace FoodFair
         {
             services.AddDbContext<FoodFairDbContext>(options =>
                 options.UseNpgsql(
-                    Configuration.GetConnectionString("DefaultConnection")));
+                    Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Transient);
+            
+            var key = Encoding.ASCII.GetBytes(Configuration.GetValue<string>("JWTToken:Secret"));
 
-            services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<FoodFairDbContext>();
+            services.AddAuthentication(x =>
+                {
+                    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(x =>
+                {
+                    x.Events = new JwtBearerEvents
+                    {
+                        OnTokenValidated = context =>
+                        {
+                            var supplierService =
+                                context.HttpContext.RequestServices.GetRequiredService<ISupplierService>();
+                            var supplierId = int.Parse(context.Principal.Identity.Name);
+                            var supplier = supplierService.GetSupplierAsync(supplierId);
+                            if (supplier == null)
+                            {
+                                // return unauthorized if user no longer exists
+                                context.Fail("Unauthorized");
+                            }
 
-            services.AddIdentityServer()
-                .AddApiAuthorization<ApplicationUser, FoodFairDbContext>();
-
-            services.AddAuthentication()
-                .AddIdentityServerJwt();
-            //
-            // services.AddCors(options =>
-            // {
-            //     options.AddPolicy(
-            //         CorsOrigin,
-            //         builder =>
-            //         {
-            //             builder
-            //                 .AllowAnyOrigin()
-            //                 .AllowAnyMethod()
-            //                 .AllowAnyHeader();
-            //         }
-            //     );
-            // });
+                            return Task.CompletedTask;
+                        }
+                    };
+                    x.RequireHttpsMetadata = false;
+                    x.SaveToken = true;
+                    x.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(key),
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.Zero
+                    };
+                });
 
             services.AddMvc();
             services.AddControllersWithViews();
@@ -65,8 +84,11 @@ namespace FoodFair
             var mapperConfig = new MapperConfiguration(mc => { mc.AddProfile(new MappingProfile()); });
             IMapper mapper = mapperConfig.CreateMapper();
             services.AddSingleton(mapper);
+            // services.AddTransient<ISupplierService, SupplierService>();
             services.AddTransient<ISupplierService, SupplierService>();
             services.AddTransient<IProductService, ProductService>();
+            services.AddTransient<IAuthService, AuthService>();
+            services.AddTransient<IImageService, ImageService>();
 
             services.AddMvc().AddNewtonsoftJson();
             services.AddControllers().AddNewtonsoftJson(opts =>
@@ -74,6 +96,8 @@ namespace FoodFair
                 opts.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 opts.SerializerSettings.Converters.Add(new StringEnumConverter());
             });
+            
+
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/build"; });
         }
@@ -102,7 +126,6 @@ namespace FoodFair
             // app.UseCors();
 
             app.UseAuthentication();
-            app.UseIdentityServer();
             app.UseAuthorization();
             
             app.UseEndpoints(endpoints =>

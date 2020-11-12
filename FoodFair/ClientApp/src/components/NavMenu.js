@@ -1,7 +1,9 @@
 import React, {Component} from 'react';
-import {Container, Nav, Navbar} from 'react-bootstrap';
+import {Badge, Button, Container, Nav, Navbar} from 'react-bootstrap';
 import './NavMenu.css';
 import {LoginMenu} from "./api-authorization/LoginMenu";
+import {MdAddShoppingCart} from "react-icons/md";
+import {IconContext} from "react-icons";
 
 export class NavMenu extends Component {
     static displayName = NavMenu.name;
@@ -22,10 +24,14 @@ export class NavMenu extends Component {
                         <Navbar.Toggle aria-controls="basic-navbar-nav"/>
                         <Navbar.Collapse id="basic-navbar-nav" className="justify-content-between">
                             <Nav>
-                                <Nav.Link className="text-white" href="/products">Products</Nav.Link>
-                                <Nav.Link className="text-white" href="/suppliers">Suppliers</Nav.Link>
-                                <Nav.Link className="text-white" href="/me/products/add">Add Product</Nav.Link>
+                                <Nav.Link className="text-white" href="/products">Browse products</Nav.Link>
                             </Nav>
+                            <Button variant="outline-light" className="cart-nav-button" href="/cart">
+                                <IconContext.Provider value={{className: "navbar-shopping-cart"}}>
+                                    <MdAddShoppingCart size={20}/>
+                                </IconContext.Provider>
+                                <Badge pill variant="success">{this.props.cartCount}</Badge>
+                            </Button>
                             <LoginMenu/>
                         </Navbar.Collapse>
                     </Container>

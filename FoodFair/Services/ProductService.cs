@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FoodFair.Contexts;
 using FoodFair.Models.Entities;
@@ -15,10 +16,20 @@ namespace FoodFair.Services
         {
             _context = context;
         }
-        
-        public async Task<IEnumerable<Product>> GetAllProductsAsync()
+
+        public async Task<IEnumerable<Product>> GetAllProductsAsync(int? supplierId, bool showOnlyAvailable)
         {
-            return await _context.Products.Include(p=> p.Supplier).ToListAsync();
+            IQueryable<Product> query = _context.Products
+                .Include(p => p.Supplier);
+
+            if (showOnlyAvailable)
+                query = query.Where(p => p.TotalQuantity > 0);
+
+            if (supplierId != null)
+                query = query.Where(p => p.SupplierId == supplierId);
+
+            return await query.ToListAsync();
+            // return await _context.Products.Where(x=>x.Id==5).Include(p=> p.Supplier).ToListAsync();
         }
 
         public async Task<Product> GetProductAsync(int id)
@@ -32,7 +43,7 @@ namespace FoodFair.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task PutProductAsync(int id, Product product)
+        public async Task PutProductAsync(Product product)
         {
             _context.Entry(product).State = EntityState.Modified;
             await _context.SaveChangesAsync();
@@ -46,8 +57,7 @@ namespace FoodFair.Services
 
         public async Task<bool> ProductExistsAsync(int id)
         {
-            return await _context.Products.AnyAsync(s=>s.Id == id);
-
+            return await _context.Products.AnyAsync(s => s.Id == id);
         }
     }
 }

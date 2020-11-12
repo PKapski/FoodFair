@@ -4,6 +4,7 @@ using AutoMapper;
 using FoodFair.Models.DTO.Products;
 using FoodFair.Models.Entities;
 using FoodFair.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FoodFair.Controllers
@@ -22,9 +23,9 @@ namespace FoodFair.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductListDTO>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<ProductListDTO>>> GetProducts(int? supplierId, bool showOnlyAvailable)
         {
-            var products = await _service.GetAllProductsAsync();
+            var products = await _service.GetAllProductsAsync(supplierId, showOnlyAvailable);
             return Ok(_mapper.Map<IEnumerable<Product>, IEnumerable<ProductListDTO>>(products));
         }
 
@@ -42,6 +43,7 @@ namespace FoodFair.Controllers
         }
         
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<ProductDetailsDTO>> PostProduct(ProductPostDTO productDto)
         {
             var product = _mapper.Map<Product>(productDto);
@@ -50,6 +52,7 @@ namespace FoodFair.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> PutProduct(int id, ProductDetailsDTO productDto)
         {
             if (id != productDto.Id)
@@ -63,20 +66,19 @@ namespace FoodFair.Controllers
             }
 
             var product = _mapper.Map<Product>(productDto);
-            await _service.PutProductAsync(id, product);
+            await _service.PutProductAsync(product);
 
             return NoContent();
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             var product = await _service.GetProductAsync(id);
             if (product == null)
-            {
                 return NotFound();
-            }
-
+            
             await _service.DeleteProductAsync(product);
 
             return NoContent();

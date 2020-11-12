@@ -1,25 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using FoodFair.Models.DTO.Products;
 
 namespace FoodFair.Models.DTO.Suppliers
 {
-    public class SupplierDetailsDTO
+    public class SupplierPutDTO
     {
         public int Id { get; set; }
-        
+
+        [Required]
         public string Name { get; set; }
-        
         public string Description { get; set; }
-        
+            
+        [Required]
+        [EmailAddress]
         public string Email { get; set; }
         
+        [Required]
+        [Phone]
         public string PhoneNumber { get; set; }
-
         public int? ImageId { get; set; }
+        public List<ProductPostDTO> Products { get; set; }
         
-        public List<ProductDetailsDTO> Products { get; set; }
-        
-        public DateTime CreatedDate { get; set; }
+        public string Password { get; set; }
     }
 }

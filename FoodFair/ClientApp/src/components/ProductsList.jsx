@@ -1,5 +1,5 @@
 ﻿import React, {Component} from 'react';
-import Product from "./Product";
+import ProductCard from "./ProductCard";
 import {Container, Col, Spinner, Row} from "react-bootstrap";
 import {ApiPaths} from "./ProjectProperties";
 
@@ -10,7 +10,7 @@ class ProductsList extends Component {
     }
     
     async componentDidMount() {
-        const response = await fetch(ApiPaths.Products);
+        const response = await fetch(`${ApiPaths.Products}?showOnlyAvailable=true`);
         const data = await response.json();
         console.log(data);
         this.setState({products: data, loading: false});
@@ -30,15 +30,13 @@ class ProductsList extends Component {
         }
         
         return (
-            <Container>
-                <Row>
+                <Row className="productRow">
                     {this.state.products.map(product => (
                         <Col className="col-md-4" key={product.id}>
-                            <Product product={product} key={product.id}/>
+                            <ProductCard product={product} key={product.id} onAddCart={this.props.onAddCart}/>
                         </Col>
                     ))}
                 </Row>
-            </Container>
         );
     }
 }

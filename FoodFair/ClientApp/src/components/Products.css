@@ -55,8 +55,8 @@
 }
 
 .submitButton {
-    margin: auto;
     display: block;
+    margin: auto auto 1em;
 }
 
 .imageColumn {
@@ -75,4 +75,80 @@
 
 .quantityText {
     font-size: 12px;
+}
+
+.row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.detailsInfoCol {
+    padding-right: 10px;
+    align-items: center;
+    text-align: right;
+    margin-bottom: 20px;
+}
+
+.productNameText {
+    border-bottom: solid;
+    padding-bottom: 5px;
+    border-width: 1px;
+    border-color: #28a745;
+}
+
+.imageRow {
+    height: 400px;
+    width: 700px;
+    overflow: hidden;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.imageRow img {
+    height: 100%;
+    width: 100%;
+    max-height: 400px;
+    max-width: 700px;
+    position: relative;
+}
+
+.descriptionLabel {
+    font-weight: bold;
+}
+
+.success-icon {
+    color: #28a745;
+    margin-left: 5px;
+}
+
+.modal-title {
+    font-weight: bold;
+}
+
+.imageTableColumn {
+    max-height: 100px;
+    display:inline-block;
+    padding: 0 !important;
+}
+
+td img {
+    height: 100px!important;
+    width: 100px!important;
+}
+
+.table td {
+    text-align: center !important;
+    vertical-align: middle !important;
+    font-weight: bold;
+}
+
+.table {
+    border-collapse:separate;
+    border-spacing:1em;
+}
+
+.addNewButtonColumn {
+    text-align: right;
+    margin: 5px;
 }

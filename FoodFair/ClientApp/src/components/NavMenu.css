@@ -20,3 +20,12 @@ html {
 .loginMenu {
   background-color: red;
 }
+
+.navbar-shopping-cart {
+    color: #28a745;
+  margin-right: 5px;
+}
+
+.cart-nav-button {
+  background-color: white;
+}
