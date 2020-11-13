@@ -40,9 +40,9 @@ export default class App extends Component {
     }
 
     handleCartCountChange(newCount) {
-        this.setState({itemsInCart: newCount});   
+        this.setState({itemsInCart: newCount});
     }
-    
+
     render() {
         return (
             <Layout cartCount={this.state.itemsInCart}>
@@ -50,11 +50,12 @@ export default class App extends Component {
                 <Route exact path='/products'
                        render={(props) => <Products onAddCart={this.incrementCartItems} {...props}/>}/>
                 <Route path="/products/:id"
-                       render={(props) => <ProductDetails onAddCart={this.incrementCartItems} method='POST' {...props}/>}/>
+                       render={(props) => <ProductDetails onAddCart={this.incrementCartItems}
+                                                          method='POST' {...props}/>}/>
                 <SecuredRoute exact path='/me/products/add' component={AddProduct}/>
                 {/*<Route path='/cart' component={Cart} onCartClear={this.handleCartClear}/>*/}
                 <Route path='/cart'
-                        render={(props) => <Cart onCartCountChange={this.handleCartCountChange} {...props}/>}/>
+                       render={(props) => <Cart onCartCountChange={this.handleCartCountChange} {...props}/>}/>
                 <Route path='/login' component={Login}/>
                 <SecuredRoute exact path='/me/products' component={MyProducts}/>
                 {/*<SecuredRoute path="/me/products/:id"*/}

@@ -1,5 +1,0 @@
-﻿0. Create DTOs
-1. Add currencies (by calling https://exchangeratesapi.io/ via REST)
-2. Enable CORS
-3. Authentication
-4. DOKUMENTACJA - wymagania + technologie + pare screenów
