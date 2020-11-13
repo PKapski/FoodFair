@@ -37,7 +37,20 @@ class MyProducts extends Component {
             console.log(`Error deleting ${deletedId} product!`);
         }
     }
+    
+    compare(p1, p2) {
+        const product1 = p1.createdDate;
+        const product2 = p2.createdDate;
 
+        let comparison = 0;
+        if (product1 < product2) {
+            comparison = 1;
+        } else if (product1 > product2) {
+            comparison = -1;
+        }
+        return comparison;
+    }
+    
     render() {
         const spinnerStyle = {position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)"};
 
@@ -73,8 +86,15 @@ class MyProducts extends Component {
                 </Row>
                 <Col>
                     <Table variant="secondary">
+                        <thead>
+                            <th className="headerImage">Img</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Price/unit</th>
+                            <th>Quantity</th>
+                        </thead>
                         <tbody>
-                        {this.state.products.map(product => (
+                        {this.state.products.sort(this.compare).map(product => (
                             <ProductRow product={product} onDelete={this.handleProductDelete}/>
                         ))}
                         </tbody>

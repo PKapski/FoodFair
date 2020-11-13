@@ -10,7 +10,7 @@ class ProductsHeader extends Component {
                     <p className="lead text-muted">Browse products from our finest suppliers.<br/>
                         Click on certain product for more information.</p>
                     <form>
-                        <input className="form-control" type="text" placeholder="Search by name:"/>
+                        <input className="form-control" type="text" placeholder="Search by name:" onChange={this.props.onNameFilterChange} />
                     </form>
                 </Container>
             </section>

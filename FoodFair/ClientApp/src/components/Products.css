@@ -152,3 +152,14 @@ td img {
     text-align: right;
     margin: 5px;
 }
+
+.headerImage {
+    text-align: left!important;
+    padding-left: 2em!important;
+}
+
+.table thead th {
+    text-align: center;
+    color: #28a745;
+    border: 0;
+}

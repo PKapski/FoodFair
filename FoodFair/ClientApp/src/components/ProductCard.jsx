@@ -7,7 +7,7 @@ import defaultImage from "../images/default-image.png"
 import {ApiPaths, ImageSourcePrefix} from "./ProjectProperties";
 import { Link } from 'react-router-dom';
 import AddedToCartModal from "./AddedToCartModal";
-
+import {getQuantityString} from "./QuantityUtils"
 
 class Product extends Component {
     constructor(props) {
@@ -20,22 +20,7 @@ class Product extends Component {
             smShow: false
         }
     }
-
-
-    getQuantityString(singleStockQuantity, quantityUnit) {
-        if (singleStockQuantity === 1) {
-            return quantityUnit;
-        }
-
-        let quantityString = singleStockQuantity + " ";
-        quantityString += this.getQuantityUnit(quantityUnit);
-        return quantityString;
-    }
-
-    getQuantityUnit(quantityUnit) {
-        return quantityUnit === "Piece" ? "Pieces" : quantityUnit;
-    }
-
+    
     async componentDidMount() {
         const {imageId} = this.props.product;
         if (imageId === null) {
@@ -87,7 +72,7 @@ class Product extends Component {
                             <Row className="justify-content-between align-items-center">
                                 <div>
                                     <a> {price} {currency}</a>
-                                    <a className="text-muted quantityText"> /{this.getQuantityString(singleStockQuantity, quantityUnit)}</a>
+                                    <a className="text-muted quantityText"> /{getQuantityString(singleStockQuantity, quantityUnit)}</a>
                                 </div>
                                 <Link to={`/products/${id}`} className="stretched-link"/>
                                 <OverlayTrigger delay={{show: 200, hide: 200}} placement="top" overlay={

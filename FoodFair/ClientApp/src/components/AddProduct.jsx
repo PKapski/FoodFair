@@ -12,7 +12,7 @@ import {getSupplierId, getToken} from "./api-authorization/AuthProvider"
 class AddProduct extends Component {
 
     productCategories = ["Food", "Drink", "Other"];
-    weightUnits = ["Piece", "G", "Dag", "Kg", "T"]
+    weightUnits = ["Piece", "G", "Dag", "Kg", "T", "L"]
 
     constructor(props) {
         super(props);

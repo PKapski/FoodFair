@@ -6,6 +6,7 @@ import {Link} from "react-router-dom";
 import {MdAddShoppingCart} from "react-icons/md";
 import "./Products.css"
 import AddedToCartModal from "./AddedToCartModal";
+import {getQuantityString} from "./QuantityUtils"
 
 export default class ProductDetails extends Component {
 
@@ -54,21 +55,7 @@ export default class ProductDetails extends Component {
     getResponseWithoutQuotes(base64Image) {
         return base64Image.replace(/['"]+/g, '');
     }
-
-    getQuantityString(singleStockQuantity, quantityUnit) {
-        if (singleStockQuantity === 1) {
-            return quantityUnit;
-        }
-
-        let quantityString = singleStockQuantity + " ";
-        quantityString += this.getQuantityUnit(quantityUnit);
-        return quantityString;
-    }
-
-    getQuantityUnit(quantityUnit) {
-        return quantityUnit === "Piece" ? "Pieces" : quantityUnit;
-    }
-
+    
     onAddToCartClick(id) {
         this.props.onAddCart(id);
         this.setState({smShow: true});
@@ -103,7 +90,7 @@ export default class ProductDetails extends Component {
                             <Link to={`/suppliers/${supplierName}`}>Supplier: {supplierName}</Link>
                             <h1 className="productNameText">{name}</h1>
                             <span> {price} {currency}</span>
-                            <p className="text-muted quantityText"> /{this.getQuantityString(singleStockQuantity, quantityUnit)}</p>
+                            <p className="text-muted quantityText"> /{getQuantityString(singleStockQuantity, quantityUnit)}</p>
                             <Button variant="success" block onClick={() => this.onAddToCartClick(id)}><MdAddShoppingCart/> Add to
                                 cart</Button>
                         </div>

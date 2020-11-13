@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import {Route} from 'react-router';
 import {Layout} from './components/Layout';
 import {Home} from './components/Home';
-// import AuthorizeRoute from './components/api-authorization/AuthorizeRoute';
 import './custom.css'
 import AddProduct from "./components/AddProduct";
 import ProductDetails from "./components/ProductDetails";
@@ -12,8 +11,7 @@ import Login from "./components/api-authorization/Login";
 import SecuredRoute from "./components/api-authorization/SecuredRoute";
 import MyProducts from "./components/MyProducts";
 import Register from "./components/api-authorization/Register";
-
-const cartStorageName = "cart";
+import {addToCart, getCartCount} from "./components/CartUtils"
 
 export default class App extends Component {
     static displayName = App.name;
@@ -22,19 +20,10 @@ export default class App extends Component {
         super(props);
         this.incrementCartItems = this.incrementCartItems.bind(this)
         this.storeInLocalStorageAndReturnCount = this.storeInLocalStorageAndReturnCount.bind(this);
-        this.getCartCount = this.getCartCount.bind(this);
+        this.handleCartCountChange = this.handleCartCountChange.bind(this);
 
         this.state = {
-            itemsInCart: this.getCartCount()
-        }
-    }
-
-    getCartCount() {
-        let cart = localStorage.getItem(cartStorageName);
-        if (cart == null) {
-            return 0;
-        } else {
-            return JSON.parse(cart).length;
+            itemsInCart: getCartCount()
         }
     }
 
@@ -46,24 +35,14 @@ export default class App extends Component {
     }
 
     storeInLocalStorageAndReturnCount(productId) {
-        let cart = localStorage.getItem(cartStorageName);
-        let count = 1;
-
-        if (cart === null) {
-            cart = [productId];
-        } else {
-            cart = JSON.parse(cart);
-            if (cart.includes(productId)) {
-                return cart.length;
-            } else {
-                count = cart.push(productId);
-            }
-        }
-        localStorage.setItem(cartStorageName, JSON.stringify(cart));
-        return count;
+        addToCart(productId);
+        return getCartCount();
     }
 
-
+    handleCartCountChange(newCount) {
+        this.setState({itemsInCart: newCount});   
+    }
+    
     render() {
         return (
             <Layout cartCount={this.state.itemsInCart}>
@@ -73,7 +52,9 @@ export default class App extends Component {
                 <Route path="/products/:id"
                        render={(props) => <ProductDetails onAddCart={this.incrementCartItems} method='POST' {...props}/>}/>
                 <SecuredRoute exact path='/me/products/add' component={AddProduct}/>
-                <Route path='/cart' component={Cart}/>
+                {/*<Route path='/cart' component={Cart} onCartClear={this.handleCartClear}/>*/}
+                <Route path='/cart'
+                        render={(props) => <Cart onCartCountChange={this.handleCartCountChange} {...props}/>}/>
                 <Route path='/login' component={Login}/>
                 <SecuredRoute exact path='/me/products' component={MyProducts}/>
                 {/*<SecuredRoute path="/me/products/:id"*/}

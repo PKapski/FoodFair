@@ -23,9 +23,9 @@ namespace FoodFair.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductListDTO>>> GetProducts(int? supplierId, bool showOnlyAvailable)
+        public async Task<ActionResult<IEnumerable<ProductListDTO>>> GetProducts([FromQuery] ProductsSearchParams searchParams)
         {
-            var products = await _service.GetAllProductsAsync(supplierId, showOnlyAvailable);
+            var products = await _service.GetAllProductsAsync(searchParams);
             return Ok(_mapper.Map<IEnumerable<Product>, IEnumerable<ProductListDTO>>(products));
         }
 

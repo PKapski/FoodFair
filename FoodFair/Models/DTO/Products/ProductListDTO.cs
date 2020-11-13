@@ -17,5 +17,7 @@ namespace FoodFair.Models.DTO.Products
         public double Price { get; set; }
         public Currency Currency { get; set; }
         public ProductCategory Category { get; set; }
+        public DateTime CreatedDate { get; set; }
+
     }
 }

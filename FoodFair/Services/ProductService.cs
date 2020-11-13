@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using FoodFair.Contexts;
+using FoodFair.Models.DTO.Products;
 using FoodFair.Models.Entities;
 using FoodFair.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -17,19 +18,21 @@ namespace FoodFair.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<Product>> GetAllProductsAsync(int? supplierId, bool showOnlyAvailable)
+        public async Task<IEnumerable<Product>> GetAllProductsAsync(ProductsSearchParams searchParams)
         {
             IQueryable<Product> query = _context.Products
                 .Include(p => p.Supplier);
 
-            if (showOnlyAvailable)
+            if (searchParams.ShowOnlyAvailable)
                 query = query.Where(p => p.TotalQuantity > 0);
 
-            if (supplierId != null)
-                query = query.Where(p => p.SupplierId == supplierId);
+            if (searchParams.SupplierId != null)
+                query = query.Where(p => p.SupplierId == searchParams.SupplierId);
 
+            if (searchParams.ProductIds.Length > 0)
+                query = query.Where(p => searchParams.ProductIds.Contains(p.Id));
+            
             return await query.ToListAsync();
-            // return await _context.Products.Where(x=>x.Id==5).Include(p=> p.Supplier).ToListAsync();
         }
 
         public async Task<Product> GetProductAsync(int id)

@@ -5,6 +5,7 @@ import './Products.css'
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import {Link} from "react-router-dom";
 import {ApiPaths, ImageSourcePrefix} from "./ProjectProperties";
+import {getQuantityString} from "./QuantityUtils"
 
 class ProductRow extends Component {
     constructor(props) {
@@ -63,7 +64,7 @@ class ProductRow extends Component {
                     <td className="imageTableColumn"><Image src={this.state.Image} fluid/></td>
                     <td>{name}</td>
                     <td>{category}</td>
-                    <td>{price} {currency} /{this.getQuantityString(singleStockQuantity, quantityUnit)}</td>
+                    <td>{price} {currency} /{getQuantityString(singleStockQuantity, quantityUnit)}</td>
                     <td>{totalQuantity}</td>
                     <td>
                         <Link to={`/me/products/edit/${id}`}>
@@ -75,20 +76,6 @@ class ProductRow extends Component {
                 <DeleteConfirmationModal name={name} show={this.state.showDeleteConfirmation} onModalExit={this.handleModalExit} onDelete={() => this.handleProductDelete(id)}/>
             </React.Fragment>
         );
-    }
-
-    getQuantityString(singleStockQuantity, quantityUnit) {
-        if (singleStockQuantity === 1) {
-            return quantityUnit;
-        }
-
-        let quantityString = singleStockQuantity + " ";
-        quantityString += this.getQuantityUnit(quantityUnit);
-        return quantityString;
-    }
-
-    getQuantityUnit(quantityUnit) {
-        return quantityUnit === "Piece" ? "Pieces" : quantityUnit;
     }
 }
 

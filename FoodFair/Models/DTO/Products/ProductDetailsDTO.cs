@@ -15,7 +15,7 @@ namespace FoodFair.Models.DTO.Products
         public string Name { get; set; }
         public string Description { get; set; }
         public int? ImageId { get; set; }
-        public DateTime CreationDate { get; }
+        public DateTime CreatedDate { get; set; }
         public double TotalQuantity { get; set; }
         public double SingleStockQuantity { get; set; }
         public QuantityUnit QuantityUnit { get; set; }
